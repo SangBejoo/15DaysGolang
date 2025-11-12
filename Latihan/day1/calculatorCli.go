@@ -1,9 +1,20 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
+func readLine() string {
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	return strings.TrimSpace(input)
+}
+
+/*
 func getNumberInput(prompt string) float32 {
 	var num float32
 	fmt.Println(prompt)
@@ -17,7 +28,46 @@ func getNumberInput(prompt string) float32 {
 		}
 	}
 }
+*/
 
+func getFloat(prompt string) float64 {
+	for {
+		fmt.Print(prompt)
+		input := readLine()
+		if num, err := strconv.ParseFloat(input, 64); err == nil {
+			return num
+		}
+		fmt.Println("Invalid input. Please enter a valid number.")
+	}
+}
+
+func getOperator() string {
+	valid := map[string]bool{"+": true, "-": true, "*": true, "/": true}
+	for {
+		fmt.Print("Enter valid operator (+, -, *, /): ")
+		op := strings.TrimSpace(readLine())
+		if valid[op] {
+			return op
+		}
+		fmt.Println("Invalid operator. Please try again.")
+	}
+}
+
+func askContinue() bool {
+	for {
+		fmt.Print("Lanjutkan kalkulasi? (y/n): ")
+		ans := strings.ToLower(strings.TrimSpace(readLine()))
+		if ans == "y" || ans == "yes" {
+			return true
+		}
+		if ans == "n" || ans == "no" {
+			return false
+		}
+		fmt.Println("Invalid input. Please enter 'y' or 'n'.")
+	}
+}
+
+/*
 func getOperatorInput(prompt string) string {
 	var operator string
 	fmt.Println(prompt)
@@ -36,43 +86,47 @@ func getOperatorInput(prompt string) string {
 		}
 	}
 }
+*/
 
 func main() {
-	var num1, num2 float32
-	var operator string
-	fmt.Println("calculatorCli")
+	fmt.Println("====Calculator CLI====")
+	fmt.Println("Supported desimal, q to quit")
 
 	for {
-		num1 = getNumberInput("Enter number 1: ")
-		num2 = getNumberInput("Enter number 2: ")
+		num1 := getFloat("Enter first number :  ")
+		num2 := getFloat("Enter second number : ")
+		operator := getOperator()
 
-		operator = getOperatorInput("Enter operator: ")
+		var result float64
+		valid := true
 
 		switch operator {
 		case "+":
-			fmt.Printf("%.2f + %.2f = %.3f\n", num1, num2, num1+num2)
+			result = num1 + num2
 		case "-":
-			fmt.Printf("%.2f - %.2f = %.3f\n", num1, num2, num1-num2)
+			result = num1 - num2
 		case "*":
-			fmt.Printf("%.2f * %.2f = %.3f\n", num1, num2, num1*num2)
+			result = num1 * num2
 		case "/":
-			if num2 != 0 {
-				fmt.Printf("%.2f / %.2f = %.3f\n", num1, num2, num1/num2)
+			if num2 == 0 {
+				fmt.Println("Error: Division by zero is not allowed.")
+				valid = false
 			} else {
-				fmt.Println("Error: Division by zero")
+				result = num1 / num2
 			}
-		default:
-			fmt.Println("Invalid operator")
 		}
-		var continueCalc string
-		fmt.Println("Lanjutkan kalkulasi? (y/n): ")
-		fmt.Scan(&continueCalc)
-		if continueCalc != "y" && continueCalc != "Y" {
-			fmt.Println("Exiting calculator. Goodbye!")
-			break
+
+		if valid {
+			fmt.Printf("Result: %.2f %s %.2f = %.4f\n", num1, operator, num2, result)
 		} else {
 			fmt.Println()
 		}
+
+		if !askContinue() {
+			fmt.Println("Bye Bye!")
+			break
+		}
+		fmt.Print()
 	}
 
 }
